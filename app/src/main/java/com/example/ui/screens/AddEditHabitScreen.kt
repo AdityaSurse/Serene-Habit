@@ -40,6 +40,7 @@ fun AddEditHabitScreen(navController: NavController, viewModel: HabitViewModel, 
     val coroutineScope = rememberCoroutineScope()
     var name by remember { mutableStateOf("") }
     var goal by remember { mutableIntStateOf(1) }
+    var frequencyType by remember { mutableStateOf("DAILY") }
     
     LaunchedEffect(habitId) {
         if (habitId != null) {
@@ -47,6 +48,7 @@ fun AddEditHabitScreen(navController: NavController, viewModel: HabitViewModel, 
             habit?.let { 
                 name = it.name
                 goal = it.dailyGoal
+                frequencyType = it.frequencyType
             }
         }
     }
@@ -100,7 +102,7 @@ fun AddEditHabitScreen(navController: NavController, viewModel: HabitViewModel, 
                                             name = name,
                                             iconName = "spa",
                                             colorString = "#4a654f",
-                                            frequencyType = "DAILY",
+                                            frequencyType = frequencyType,
                                             customDays = "",
                                             dailyGoal = goal,
                                             reminderTime = null
@@ -109,7 +111,7 @@ fun AddEditHabitScreen(navController: NavController, viewModel: HabitViewModel, 
                                 } else {
                                     coroutineScope.launch {
                                         viewModel.getHabitById(habitId)?.let {
-                                            viewModel.updateHabit(it.copy(name = name, dailyGoal = goal))
+                                            viewModel.updateHabit(it.copy(name = name, dailyGoal = goal, frequencyType = frequencyType))
                                         }
                                     }
                                 }
@@ -205,8 +207,16 @@ fun AddEditHabitScreen(navController: NavController, viewModel: HabitViewModel, 
                             }
                             Spacer(modifier = Modifier.height(16.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                SuggestionChip(onClick = {}, label = { Text("Daily") }, colors = SuggestionChipDefaults.suggestionChipColors(containerColor = MaterialTheme.colorScheme.primary, labelColor = MaterialTheme.colorScheme.onPrimary))
-                                SuggestionChip(onClick = {}, label = { Text("Weekdays") })
+                                SuggestionChip(
+                                    onClick = { frequencyType = "DAILY" },
+                                    label = { Text("Daily") },
+                                    colors = if (frequencyType == "DAILY") SuggestionChipDefaults.suggestionChipColors(containerColor = MaterialTheme.colorScheme.primary, labelColor = MaterialTheme.colorScheme.onPrimary) else SuggestionChipDefaults.suggestionChipColors()
+                                )
+                                SuggestionChip(
+                                    onClick = { frequencyType = "WEEKDAYS" },
+                                    label = { Text("Weekdays") },
+                                    colors = if (frequencyType == "WEEKDAYS") SuggestionChipDefaults.suggestionChipColors(containerColor = MaterialTheme.colorScheme.primary, labelColor = MaterialTheme.colorScheme.onPrimary) else SuggestionChipDefaults.suggestionChipColors()
+                                )
                             }
                         }
                     }
